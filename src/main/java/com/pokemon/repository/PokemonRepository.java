@@ -15,10 +15,13 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     
     Optional<Pokemon> findByNombreIgnoreCase(String nombre);
     
-    List<Pokemon> findByTipo1(String tipo);
+    List<Pokemon> findByNombreContainingIgnoreCase(String nombre);
     
-    List<Pokemon> findByTipo1OrTipo2(String tipo1, String tipo2);
+    List<Pokemon> findByTipo1IgnoreCase(String tipo);
     
+    List<Pokemon> findByTipo1IgnoreCaseOrTipo2IgnoreCase(String tipo1, String tipo2);
+    
+    @Deprecated
     @Query("SELECT p FROM Pokemon p WHERE p.nombre LIKE %?1%")
     List<Pokemon> findByNombreContaining(String nombre);
     

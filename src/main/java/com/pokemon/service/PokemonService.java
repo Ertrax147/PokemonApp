@@ -27,11 +27,11 @@ public class PokemonService {
     }
     
     public List<Pokemon> buscarPokemonPorNombre(String nombre) {
-        return pokemonRepository.findByNombreContaining(nombre);
+        return pokemonRepository.findByNombreContainingIgnoreCase(nombre);
     }
     
     public List<Pokemon> obtenerPokemonPorTipo(String tipo) {
-        return pokemonRepository.findByTipo1OrTipo2(tipo, tipo);
+        return pokemonRepository.findByTipo1IgnoreCaseOrTipo2IgnoreCase(tipo, tipo);
     }
     
     public Pokemon guardarPokemon(Pokemon pokemon) {
