@@ -21,7 +21,30 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (pokemonRepository.count() == 0) {
-            cargarPokemonPrimeraGeneracion();
+            cargarPokemonGeneracionesUnoATres();
+        }
+    }
+
+    private void cargarPokemonGeneracionesUnoATres() {
+        try {
+            System.out.println("🔄 Cargando Pokémon de generaciones 1 a 3 desde la API...");
+            Boolean conectividad = pokeApiService.verificarConectividad().block();
+            if (Boolean.FALSE.equals(conectividad)) {
+                System.err.println("❌ No se puede conectar a PokeAPI. Verifica tu conexión a internet.");
+                return;
+            }
+            List<Pokemon> pokemons = pokeApiService.obtenerPokemonGenUnoATres()
+                    .collectList()
+                    .block();
+            if (pokemons != null && !pokemons.isEmpty()) {
+                pokemonRepository.saveAll(pokemons);
+                System.out.println("✅ Se cargaron " + pokemons.size() + " Pokémon exitosamente");
+            } else {
+                System.out.println("❌ No se pudieron cargar los Pokémon desde la API");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error al cargar Pokémon desde la API: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

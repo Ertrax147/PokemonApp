@@ -46,9 +46,10 @@ public class PokemonService {
         return pokemonRepository.findByNumero(numero).isPresent();
     }
 
-    public List<Pokemon> buscarPorNombreYTipo(String nombre, String tipo) {
+    public List<Pokemon> buscarPorNombreTipoYGeneraciones(String nombre, String tipo, List<Integer> generaciones) {
         String nombreParam = (nombre == null || nombre.isBlank()) ? null : nombre;
         String tipoParam = (tipo == null || tipo.isBlank()) ? null : tipo;
-        return pokemonRepository.searchByNombreAndTipo(nombreParam, tipoParam);
+        List<Integer> gensParam = (generaciones == null || generaciones.isEmpty()) ? null : generaciones;
+        return pokemonRepository.searchByNombreTipoGeneraciones(nombreParam, tipoParam, gensParam);
     }
 }

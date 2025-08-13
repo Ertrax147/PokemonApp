@@ -37,8 +37,8 @@ public class AdminController {
             pokemonService.obtenerTodosLosPokemon().forEach(pokemon -> 
                 pokemonService.eliminarPokemon(pokemon.getId()));
             
-            // Cargar desde la API
-            List<Pokemon> pokemons = pokeApiService.obtenerPokemonPrimeraGeneracion()
+            // Cargar desde la API (Gen 1-3)
+            List<Pokemon> pokemons = pokeApiService.obtenerPokemonGenUnoATres()
                     .collectList()
                     .block();
             

@@ -46,6 +46,14 @@ public class PokeApiService {
                 .doOnComplete(() -> System.out.println("✅ Carga de Pokémon completada"));
     }
     
+    public Flux<Pokemon> obtenerPokemonGenUnoATres() {
+        System.out.println("🚀 Iniciando carga de Pokémon Gen 1-3 (1..386) desde PokeAPI...");
+        return Flux.range(1, 386)
+                .doOnNext(numero -> System.out.println("📡 Cargando Pokémon #" + numero + "..."))
+                .flatMap(this::obtenerPokemonPorNumero, 5)
+                .doOnComplete(() -> System.out.println("✅ Carga de Pokémon Gen 1-3 completada"));
+    }
+    
     private Mono<Pokemon> obtenerPokemonPorNumero(Integer numero) {
         return webClient.get()
                 .uri("/pokemon/{id}", numero)
@@ -82,6 +90,11 @@ public class PokeApiService {
         
         // Configurar URL de imagen
         pokemon.setImagenUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + response.getId() + ".png");
+        
+        // Generación (1: 1-151, 2: 152-251, 3: 252-386)
+        int id = response.getId();
+        int gen = id <= 151 ? 1 : (id <= 251 ? 2 : (id <= 386 ? 3 : 4));
+        pokemon.setGeneracion(gen);
         
         return pokemon;
     }

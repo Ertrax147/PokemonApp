@@ -31,6 +31,9 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     @Query("SELECT p FROM Pokemon p " +
            "WHERE (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
            "AND (:tipo IS NULL OR LOWER(p.tipo1) = LOWER(:tipo) OR LOWER(p.tipo2) = LOWER(:tipo)) " +
+           "AND (:gens IS NULL OR p.generacion IN :gens) " +
            "ORDER BY p.numero ASC")
-    List<Pokemon> searchByNombreAndTipo(@Param("nombre") String nombre, @Param("tipo") String tipo);
+    List<Pokemon> searchByNombreTipoGeneraciones(@Param("nombre") String nombre,
+                                                 @Param("tipo") String tipo,
+                                                 @Param("gens") List<Integer> gens);
 }

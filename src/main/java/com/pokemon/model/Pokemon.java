@@ -48,6 +48,9 @@ public class Pokemon {
     @Column(nullable = false)
     private Double peso;
     
+    @Column(nullable = false)
+    private Integer generacion;
+    
     @Column
     private String imagenUrl;
     
@@ -116,6 +119,9 @@ public class Pokemon {
     
     public Double getPeso() { return peso; }
     public void setPeso(Double peso) { this.peso = peso; }
+    
+    public Integer getGeneracion() { return generacion; }
+    public void setGeneracion(Integer generacion) { this.generacion = generacion; }
     
     public String getImagenUrl() { return imagenUrl; }
     public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
