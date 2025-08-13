@@ -97,7 +97,28 @@
                     <h2 class="text-white text-center mb-4">¡Explora la Primera Generación de Pokémon!</h2>
                     <form th:action="@{/buscar}" method="get" class="d-flex">
                         <input type="text" name="nombre" class="form-control form-control-lg me-2" 
-                               placeholder="Buscar Pokémon por nombre..." required>
+                               placeholder="Buscar Pokémon por nombre...">
+                        <select name="tipo" class="form-select form-select-lg me-2" style="max-width: 220px;">
+                            <option value="" selected>Todos los tipos</option>
+                            <option>Normal</option>
+                            <option>Fuego</option>
+                            <option>Agua</option>
+                            <option>Planta</option>
+                            <option>Eléctrico</option>
+                            <option>Hielo</option>
+                            <option>Lucha</option>
+                            <option>Veneno</option>
+                            <option>Tierra</option>
+                            <option>Volador</option>
+                            <option>Psíquico</option>
+                            <option>Bicho</option>
+                            <option>Roca</option>
+                            <option>Fantasma</option>
+                            <option>Dragón</option>
+                            <option>Siniestro</option>
+                            <option>Acero</option>
+                            <option>Hada</option>
+                        </select>
                         <button type="submit" class="btn btn-light btn-lg">
                             <i class="fas fa-search"></i>
                         </button>

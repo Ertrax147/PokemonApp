@@ -3,6 +3,7 @@ package com.pokemon.repository;
 import com.pokemon.model.Pokemon;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,4 +27,10 @@ public interface PokemonRepository extends JpaRepository<Pokemon, Long> {
     List<Pokemon> findByNombreContaining(String nombre);
     
     List<Pokemon> findAllByOrderByNumeroAsc();
+
+    @Query("SELECT p FROM Pokemon p " +
+           "WHERE (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
+           "AND (:tipo IS NULL OR LOWER(p.tipo1) = LOWER(:tipo) OR LOWER(p.tipo2) = LOWER(:tipo)) " +
+           "ORDER BY p.numero ASC")
+    List<Pokemon> searchByNombreAndTipo(@Param("nombre") String nombre, @Param("tipo") String tipo);
 }

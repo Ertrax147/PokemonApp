@@ -48,11 +48,18 @@ public class WebController {
     }
     
     @GetMapping("/buscar")
-    public String buscarPokemon(@RequestParam String nombre, Model model) {
-        List<Pokemon> pokemons = pokemonService.buscarPokemonPorNombre(nombre);
+    public String buscarPokemon(@RequestParam(required = false) String nombre,
+                                @RequestParam(required = false) String tipo,
+                                Model model) {
+        List<Pokemon> pokemons = pokemonService.buscarPorNombreYTipo(nombre, tipo);
         model.addAttribute("pokemons", pokemons);
-        model.addAttribute("busqueda", nombre);
-        model.addAttribute("titulo", "Resultados de búsqueda: " + nombre);
+        if (nombre != null && !nombre.isBlank()) {
+            model.addAttribute("busqueda", nombre);
+        }
+        if (tipo != null && !tipo.isBlank()) {
+            model.addAttribute("tipo", tipo);
+        }
+        model.addAttribute("titulo", "Resultados de búsqueda");
         return "index";
     }
     

@@ -45,4 +45,10 @@ public class PokemonService {
     public boolean existePokemonPorNumero(Integer numero) {
         return pokemonRepository.findByNumero(numero).isPresent();
     }
+
+    public List<Pokemon> buscarPorNombreYTipo(String nombre, String tipo) {
+        String nombreParam = (nombre == null || nombre.isBlank()) ? null : nombre;
+        String tipoParam = (tipo == null || tipo.isBlank()) ? null : tipo;
+        return pokemonRepository.searchByNombreAndTipo(nombreParam, tipoParam);
+    }
 }
