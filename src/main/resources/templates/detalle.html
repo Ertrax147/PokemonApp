@@ -392,6 +392,57 @@
         </div>
     </div>
 
+    <!-- Habilidades y Movimientos -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Habilidades</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="hab : ${habilidades}" class="mb-3">
+                            <div>
+                                <strong th:text="${hab.nombre}">Habilidad</strong>
+                                <span th:if="${hab.oculta}" class="badge bg-dark ms-2">Oculta</span>
+                            </div>
+                            <div class="text-muted small" th:text="${hab.descripcion}">Descripción</div>
+                        </div>
+                        <div th:if="${habilidades == null or habilidades.isEmpty()}" class="text-muted">Sin datos</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Movimientos (Gen 1-3)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-height: 360px; overflow:auto;">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Movimiento</th>
+                                        <th class="text-center">Nivel</th>
+                                        <th>Método</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="mov : ${movimientos}">
+                                        <td th:text="${mov.nombre}">Impactrueno</td>
+                                        <td class="text-center" th:text="${mov.nivel != null ? mov.nivel : '-'}">-</td>
+                                        <td th:text="${mov.metodo}">Subiendo de nivel</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div th:if="${movimientos == null or movimientos.isEmpty()}" class="text-muted">Sin datos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
