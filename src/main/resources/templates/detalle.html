@@ -275,6 +275,34 @@
         </div>
     </div>
 
+    <!-- Cadena Evolutiva -->
+    <div class="container mt-4" th:if="${evoluciones != null and !evoluciones.isEmpty()}">
+        <div class="card info-card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Cadena Evolutiva</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-center flex-wrap">
+                    <div th:each="evo, stat : ${evoluciones}" class="d-flex align-items-center mb-3">
+                        <div class="text-center mx-2">
+                            <div class="mb-2">
+                                <img th:src="${'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + evo.numero + '.png'}" th:alt="${evo.nombre}" style="width: 96px; height: 96px; object-fit: contain;">
+                            </div>
+                            <div>
+                                <span class="badge bg-secondary me-2" th:text="${'#' + evo.numero}">#000</span>
+                                <strong th:text="${evo.nombre}">Nombre</strong>
+                            </div>
+                        </div>
+                        <div th:if="${!stat.last}" class="text-center mx-3">
+                            <i class="fas fa-arrow-right fa-2x text-muted"></i>
+                            <div class="small text-muted mt-1" th:text="${evoluciones[stat.index + 1].nivelMinimo != null ? 'Nv. ' + evoluciones[stat.index + 1].nivelMinimo : '—'}">Nv. 16</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">

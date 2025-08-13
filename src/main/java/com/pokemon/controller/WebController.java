@@ -1,7 +1,9 @@
 package com.pokemon.controller;
 
+import com.pokemon.dto.Evolucion;
 import com.pokemon.model.Pokemon;
 import com.pokemon.service.PokemonService;
+import com.pokemon.service.PokeApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,9 @@ public class WebController {
     @Autowired
     private PokemonService pokemonService;
     
+    @Autowired
+    private PokeApiService pokeApiService;
+    
     @GetMapping("/")
     public String home(Model model) {
         List<Pokemon> pokemons = pokemonService.obtenerTodosLosPokemon();
@@ -31,6 +36,12 @@ public class WebController {
         Optional<Pokemon> pokemon = pokemonService.obtenerPokemonPorNumero(numero);
         if (pokemon.isPresent()) {
             model.addAttribute("pokemon", pokemon.get());
+            try {
+                List<Evolucion> evoluciones = pokeApiService.obtenerCadenaEvolutiva(numero).block();
+                model.addAttribute("evoluciones", evoluciones);
+            } catch (Exception e) {
+                model.addAttribute("evoluciones", java.util.Collections.emptyList());
+            }
             return "detalle";
         }
         return "redirect:/";

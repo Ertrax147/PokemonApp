@@ -1,5 +1,7 @@
 package com.pokemon.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.pokemon.dto.Evolucion;
 import com.pokemon.model.Pokemon;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -7,6 +9,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PokeApiService {
@@ -138,6 +143,107 @@ public class PokeApiService {
         return pokemon;
     }
     
+    public Mono<java.util.List<Evolucion>> obtenerCadenaEvolutiva(Integer numero) {
+		return webClient.get()
+				.uri("/pokemon-species/{id}", numero)
+				.retrieve()
+				.bodyToMono(SpeciesResponse.class)
+				.flatMap(species -> {
+					String chainUrl = species.getEvolutionChain() != null ? species.getEvolutionChain().getUrl() : null;
+					if (chainUrl == null) {
+						return Mono.just(java.util.Collections.emptyList());
+					}
+					Integer chainId = extraerIdDesdeUrl(chainUrl);
+					return webClient.get()
+							.uri("/evolution-chain/{id}", chainId)
+							.retrieve()
+							.bodyToMono(EvolutionChainResponse.class)
+							.map(this::construirCadenaLineal);
+				});
+	}
+
+	private java.util.List<Evolucion> construirCadenaLineal(EvolutionChainResponse chainResponse) {
+		java.util.List<Evolucion> resultado = new ArrayList<>();
+		if (chainResponse == null || chainResponse.getChain() == null) {
+			return resultado;
+		}
+		EvolutionChainResponse.Chain actual = chainResponse.getChain();
+		Integer nivel = null; // nivel para llegar al nodo actual desde el anterior
+		while (actual != null) {
+			Integer id = extraerIdDesdeUrl(actual.getSpecies().getUrl());
+			String nombre = capitalizarPrimeraLetra(actual.getSpecies().getName());
+			resultado.add(new Evolucion(id, nombre, nivel));
+			if (actual.getEvolvesTo() == null || actual.getEvolvesTo().isEmpty()) {
+				break;
+			}
+			EvolutionChainResponse.Chain siguiente = actual.getEvolvesTo().get(0);
+			nivel = null;
+			if (siguiente.getEvolutionDetails() != null && !siguiente.getEvolutionDetails().isEmpty()) {
+				EvolutionChainResponse.EvolutionDetail det = siguiente.getEvolutionDetails().get(0);
+				nivel = det.getMinLevel();
+			}
+			actual = siguiente;
+		}
+		return resultado;
+	}
+
+	private Integer extraerIdDesdeUrl(String url) {
+		if (url == null) return null;
+		Pattern p = Pattern.compile("/([0-9]+)/?$");
+		Matcher m = p.matcher(url);
+		if (m.find()) {
+			return Integer.parseInt(m.group(1));
+		}
+		return null;
+	}
+
+	// DTOs para species y evolution-chain
+	public static class SpeciesResponse {
+		@JsonProperty("evolution_chain")
+		private EvolutionChainRef evolution_chain;
+		public EvolutionChainRef getEvolutionChain() { return evolution_chain; }
+		public void setEvolutionChain(EvolutionChainRef evolution_chain) { this.evolution_chain = evolution_chain; }
+		public static class EvolutionChainRef {
+			private String url;
+			public String getUrl() { return url; }
+			public void setUrl(String url) { this.url = url; }
+		}
+	}
+
+	public static class EvolutionChainResponse {
+		private Chain chain;
+		public Chain getChain() { return chain; }
+		public void setChain(Chain chain) { this.chain = chain; }
+
+		public static class Chain {
+			private Species species;
+			@JsonProperty("evolves_to")
+			private java.util.List<Chain> evolves_to;
+			@JsonProperty("evolution_details")
+			private java.util.List<EvolutionDetail> evolution_details;
+			public Species getSpecies() { return species; }
+			public void setSpecies(Species species) { this.species = species; }
+			public java.util.List<Chain> getEvolvesTo() { return evolves_to; }
+			public void setEvolvesTo(java.util.List<Chain> evolves_to) { this.evolves_to = evolves_to; }
+			public java.util.List<EvolutionDetail> getEvolutionDetails() { return evolution_details; }
+			public void setEvolutionDetails(java.util.List<EvolutionDetail> evolution_details) { this.evolution_details = evolution_details; }
+		}
+		public static class Species {
+			private String name;
+			private String url;
+			public String getName() { return name; }
+			public void setName(String name) { this.name = name; }
+			public String getUrl() { return url; }
+			public void setUrl(String url) { this.url = url; }
+		}
+		public static class EvolutionDetail {
+			@JsonProperty("min_level")
+			private Integer min_level;
+			public Integer getMinLevel() { return min_level; }
+			public void setMinLevel(Integer min_level) { this.min_level = min_level; }
+		}
+	}
+
     // Clases internas para mapear la respuesta de la API
     public static class PokeApiResponse {
         private Integer id;
