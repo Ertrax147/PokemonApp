@@ -2,6 +2,8 @@ package com.pokemon.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pokemon.dto.Evolucion;
+import com.pokemon.dto.Habilidad;
+import com.pokemon.dto.Movimiento;
 import com.pokemon.model.Pokemon;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +13,10 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class PokeApiService {
@@ -332,6 +338,8 @@ public class PokeApiService {
         private Integer weight;
         private List<TypeInfo> types;
         private List<Stat> stats;
+        private List<AbilityInfo> abilities;
+        private List<MoveInfo> moves;
         
         // Getters y Setters
         public Integer getId() { return id; }
@@ -351,6 +359,11 @@ public class PokeApiService {
         
         public List<Stat> getStats() { return stats; }
         public void setStats(List<Stat> stats) { this.stats = stats; }
+        
+        public List<AbilityInfo> getAbilities() { return abilities; }
+        public void setAbilities(List<AbilityInfo> abilities) { this.abilities = abilities; }
+        public List<MoveInfo> getMoves() { return moves; }
+        public void setMoves(List<MoveInfo> moves) { this.moves = moves; }
         
         public static class TypeInfo {
             private Type type;
@@ -384,6 +397,47 @@ public class PokeApiService {
                 public void setName(String name) { this.name = name; }
             }
         }
+
+        public static class AbilityInfo {
+            private NamedResource ability;
+            @JsonProperty("is_hidden")
+            private boolean is_hidden;
+            public NamedResource getAbility() { return ability; }
+            public void setAbility(NamedResource ability) { this.ability = ability; }
+            public boolean isIsHidden() { return is_hidden; }
+            public void setIsHidden(boolean is_hidden) { this.is_hidden = is_hidden; }
+        }
+        public static class MoveInfo {
+            private NamedResource move;
+            @JsonProperty("version_group_details")
+            private List<VersionGroupDetail> version_group_details;
+            public NamedResource getMove() { return move; }
+            public void setMove(NamedResource move) { this.move = move; }
+            public List<VersionGroupDetail> getVersionGroupDetails() { return version_group_details; }
+            public void setVersionGroupDetails(List<VersionGroupDetail> version_group_details) { this.version_group_details = version_group_details; }
+        }
+        public static class VersionGroupDetail {
+            @JsonProperty("level_learned_at")
+            private Integer level_learned_at;
+            @JsonProperty("move_learn_method")
+            private NamedResource move_learn_method;
+            @JsonProperty("version_group")
+            private NamedResource version_group;
+            public Integer getLevelLearnedAt() { return level_learned_at; }
+            public void setLevelLearnedAt(Integer level_learned_at) { this.level_learned_at = level_learned_at; }
+            public NamedResource getMoveLearnMethod() { return move_learn_method; }
+            public void setMoveLearnMethod(NamedResource move_learn_method) { this.move_learn_method = move_learn_method; }
+            public NamedResource getVersionGroup() { return version_group; }
+            public void setVersionGroup(NamedResource version_group) { this.version_group = version_group; }
+        }
+        public static class NamedResource {
+            private String name;
+            private String url;
+            public String getName() { return name; }
+            public void setName(String name) { this.name = name; }
+            public String getUrl() { return url; }
+            public void setUrl(String url) { this.url = url; }
+        }
     }
 
     private String traducirTipo(String typeEn) {
@@ -408,6 +462,132 @@ public class PokeApiService {
             case "steel": return "Acero";
             case "fairy": return "Hada";
             default: return capitalizarPrimeraLetra(typeEn);
+        }
+    }
+
+    public Mono<java.util.List<Habilidad>> obtenerHabilidades(Integer numero) {
+        return webClient.get()
+                .uri("/pokemon/{id}", numero)
+                .retrieve()
+                .bodyToMono(PokeApiResponse.class)
+                .flatMapMany(resp -> Flux.fromIterable(resp.getAbilities() != null ? resp.getAbilities() : java.util.Collections.emptyList()))
+                .flatMap(ab -> {
+                    String abilityName = ab.getAbility() != null ? ab.getAbility().getName() : null;
+                    boolean isHidden = ab.isIsHidden();
+                    if (abilityName == null) {
+                        return Mono.empty();
+                    }
+                    return webClient.get()
+                            .uri("/ability/{name}", abilityName)
+                            .retrieve()
+                            .bodyToMono(AbilityDetailResponse.class)
+                            .map(detail -> new Habilidad(capitalizarPrimeraLetra(abilityName), isHidden, extraerDescripcionHabilidad(detail)));
+                })
+                .collectList();
+    }
+
+    private String extraerDescripcionHabilidad(AbilityDetailResponse detail) {
+        if (detail == null || detail.getEffectEntries() == null) return "";
+        String descEs = detail.getEffectEntries().stream()
+                .filter(e -> e.getLanguage() != null && "es".equalsIgnoreCase(e.getLanguage().getName()))
+                .map(AbilityDetailResponse.EffectEntry::getShortEffect)
+                .findFirst().orElse(null);
+        if (descEs != null) return descEs;
+        String descEn = detail.getEffectEntries().stream()
+                .filter(e -> e.getLanguage() != null && "en".equalsIgnoreCase(e.getLanguage().getName()))
+                .map(AbilityDetailResponse.EffectEntry::getShortEffect)
+                .findFirst().orElse(null);
+        return descEn != null ? descEn : "";
+    }
+
+    public Mono<java.util.List<Movimiento>> obtenerMovimientos(Integer numero) {
+        return webClient.get()
+                .uri("/pokemon/{id}", numero)
+                .retrieve()
+                .bodyToMono(PokeApiResponse.class)
+                .map(resp -> {
+                    java.util.List<Movimiento> resultado = new ArrayList<>();
+                    if (resp.getMoves() == null) return resultado;
+                    Set<String> permitidos = versionGroupsPermitidosGen1a3();
+                    for (PokeApiResponse.MoveInfo mi : resp.getMoves()) {
+                        String moveName = mi.getMove() != null ? mi.getMove().getName() : null;
+                        if (moveName == null || mi.getVersionGroupDetails() == null) continue;
+                        // Elegir mejor detalle por prioridad (level-up con menor nivel; si no, cualquiera)
+                        Integer mejorNivel = null;
+                        String mejorMetodo = null;
+                        for (PokeApiResponse.VersionGroupDetail vgd : mi.getVersionGroupDetails()) {
+                            if (vgd.getVersionGroup() == null || vgd.getVersionGroup().getName() == null) continue;
+                            if (!permitidos.contains(vgd.getVersionGroup().getName())) continue;
+                            String metodo = vgd.getMoveLearnMethod() != null ? vgd.getMoveLearnMethod().getName() : null;
+                            Integer nivel = vgd.getLevelLearnedAt();
+                            if ("level-up".equalsIgnoreCase(metodo)) {
+                                if (mejorNivel == null || (nivel != null && nivel < mejorNivel)) {
+                                    mejorNivel = nivel;
+                                    mejorMetodo = metodo;
+                                }
+                            } else if (mejorMetodo == null) {
+                                mejorMetodo = metodo;
+                            }
+                        }
+                        if (mejorMetodo != null || mejorNivel != null) {
+                            resultado.add(new Movimiento(formatearNombreMovimiento(moveName), mejorNivel, traducirMetodoMovimiento(mejorMetodo)));
+                        }
+                    }
+                    resultado.sort(Comparator
+                            .comparing((Movimiento m) -> m.getNivel() == null)
+                            .thenComparing(m -> m.getNivel() == null ? Integer.MAX_VALUE : m.getNivel())
+                            .thenComparing(Movimiento::getNombre));
+                    return resultado;
+                });
+    }
+
+    private Set<String> versionGroupsPermitidosGen1a3() {
+        Set<String> set = new HashSet<>();
+        // Gen 1
+        set.add("red-blue"); set.add("yellow");
+        // Gen 2
+        set.add("gold-silver"); set.add("crystal");
+        // Gen 3
+        set.add("ruby-sapphire"); set.add("emerald"); set.add("firered-leafgreen");
+        return set;
+    }
+
+    private String traducirMetodoMovimiento(String metodo) {
+        if (metodo == null) return "";
+        switch (metodo) {
+            case "level-up": return "Subiendo de nivel";
+            case "machine": return "MT/MO";
+            case "tutor": return "Tutor";
+            case "egg": return "Huevo";
+            default: return capitalizarPrimeraLetra(metodo.replace('-', ' '));
+        }
+    }
+
+    private String formatearNombreMovimiento(String moveSlug) {
+        if (moveSlug == null) return "";
+        String withSpaces = moveSlug.replace('-', ' ');
+        return capitalizarPrimeraLetra(withSpaces);
+    }
+
+    // DTO para /ability/{name}
+    public static class AbilityDetailResponse {
+        @JsonProperty("effect_entries")
+        private java.util.List<EffectEntry> effect_entries;
+        public java.util.List<EffectEntry> getEffectEntries() { return effect_entries; }
+        public void setEffectEntries(java.util.List<EffectEntry> effect_entries) { this.effect_entries = effect_entries; }
+        public static class EffectEntry {
+            @JsonProperty("short_effect")
+            private String short_effect;
+            private Language language;
+            public String getShortEffect() { return short_effect; }
+            public void setShortEffect(String short_effect) { this.short_effect = short_effect; }
+            public Language getLanguage() { return language; }
+            public void setLanguage(Language language) { this.language = language; }
+        }
+        public static class Language {
+            private String name;
+            public String getName() { return name; }
+            public void setName(String name) { this.name = name; }
         }
     }
 }

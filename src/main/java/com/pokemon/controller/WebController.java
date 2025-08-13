@@ -42,6 +42,15 @@ public class WebController {
             } catch (Exception e) {
                 model.addAttribute("evoluciones", java.util.Collections.emptyList());
             }
+            try {
+                java.util.List<com.pokemon.dto.Habilidad> habilidades = pokeApiService.obtenerHabilidades(numero).block();
+                java.util.List<com.pokemon.dto.Movimiento> movimientos = pokeApiService.obtenerMovimientos(numero).block();
+                model.addAttribute("habilidades", habilidades);
+                model.addAttribute("movimientos", movimientos);
+            } catch (Exception e) {
+                model.addAttribute("habilidades", java.util.Collections.emptyList());
+                model.addAttribute("movimientos", java.util.Collections.emptyList());
+            }
             return "detalle";
         }
         return "redirect:/";
