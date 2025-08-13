@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title th:text="${titulo}">Comparador</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+	<style>
+		.compare-header { background: linear-gradient(135deg, #0d47a1 0%, #00acc1 100%); color:#fff; padding: 2rem 0; margin-bottom: 2rem; }
+		.pokemon-card { border: none; box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-radius: 16px; background: #fff; }
+		.pokemon-card.winner { box-shadow: 0 0 0 3px #2ecc71 inset, 0 8px 20px rgba(46, 204, 113, 0.2); }
+		.pokemon-img { width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.2)); }
+		.stat-label { font-weight: 600; font-size: .95rem; }
+		.progress { height: 10px; border-radius: 999px; background: #eef2f7; }
+		.progress-bar { background: linear-gradient(90deg, #00c6ff, #0072ff); }
+		.type-badge { padding: 6px 12px; border-radius: 999px; font-weight: 700; color: #fff; }
+		.type-normal{background:#A8A77A}.type-fuego{background:#EE8130}.type-agua{background:#6390F0}.type-planta{background:#7AC74C}
+		.type-eléctrico{background:#F7D02C}.type-hielo{background:#96D9D6}.type-lucha{background:#C22E28}.type-veneno{background:#A33EA1}
+		.type-tierra{background:#E2BF65}.type-volador{background:#A98FF3}.type-psíquico{background:#F95587}.type-bicho{background:#A6B91A}
+		.type-roca{background:#B6A136}.type-fantasma{background:#735797}.type-dragón{background:#6F35FC}.type-siniestro{background:#705746}
+		.type-acero{background:#B7B7CE}.type-hada{background:#D685AD}
+		.type-electrico{background:#F7D02C}.type-psiquico{background:#F95587}.type-dragon{background:#6F35FC}
+		.vs-icon { width: 64px; height: 64px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#fff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); margin-inline:auto; }
+		
+		/* Layout comparador (grid fijo 3 columnas) */
+		.compare-grid { display: grid; grid-template-columns: 1fr 80px 1fr; gap: 2rem; align-items: stretch; }
+		.compare-col {}
+		.vs-col { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+		.pokemon-card { height: 100%; }
+		/* Dropdown de sugerencias */
+		.suggest-wrap { position: relative; }
+		.suggest-menu { position: absolute; top: 100%; left: 0; width: 100%; max-height: 260px; overflow: auto; border: 1px solid #dee2e6; border-top: none; background: #fff; z-index: 20; display: none; }
+		.suggest-item { padding: .5rem .75rem; cursor: pointer; }
+		.suggest-item:hover { background: #f5f7fb; }
+		/* Colores de barras */
+		.progress-bar.hp{ background:#2ecc71 }
+		.progress-bar.atk{ background:#e74c3c }
+		.progress-bar.def{ background:#3498db }
+		.progress-bar.spa{ background:#8e44ad }
+		.progress-bar.spd{ background:#16a085 }
+		.progress-bar.spe{ background:#f39c12 }
+		.stat-val{ font-weight:700; font-size:.9rem; }
+		.stat-val.hp{ color:#2ecc71 }
+		.stat-val.atk{ color:#e74c3c }
+		.stat-val.def{ color:#3498db }
+		.stat-val.spa{ color:#8e44ad }
+		.stat-val.spd{ color:#16a085 }
+		.stat-val.spe{ color:#f39c12 }
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+		<div class="container">
+			<a class="navbar-brand" href="/"><i class="fas fa-dragon me-2"></i>Pokédex</a>
+			<div class="navbar-nav ms-auto">
+				<a class="nav-link" href="/">Inicio</a>
+				<a class="nav-link active" href="/comparar">Comparar</a>
+				<a class="nav-link" href="/about">Acerca de</a>
+				<a class="nav-link" href="/admin">Admin</a>
+			</div>
+		</div>
+	</nav>
+
+	<section class="compare-header">
+		<div class="container">
+			<h1 class="mb-0 text-center"><i class="fas fa-balance-scale me-2"></i>Comparador de Pokémon</h1>
+		</div>
+	</section>
+
+	<div class="container" style="max-width: 1100px;">
+		<form method="get" action="/comparar" class="row g-3 align-items-end mb-4">
+			<div class="col-12 col-lg-5">
+				<label class="form-label">Pokémon 1</label>
+				<div class="suggest-wrap">
+					<input id="input-p1" name="p1" class="form-control form-control-lg" placeholder="Número o nombre" th:value="${param.p1}" readonly autocomplete="off">
+					<div id="suggestions-p1" class="suggest-menu">
+						<div class="suggest-item" th:each="pk : ${listaPokemon}" th:data-value="${pk.numero}" th:data-text="${pk.numero + ' - ' + pk.nombre}" th:text="${'#' + pk.numero + ' - ' + pk.nombre}"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-lg-5">
+				<label class="form-label">Pokémon 2</label>
+				<div class="suggest-wrap">
+					<input id="input-p2" name="p2" class="form-control form-control-lg" placeholder="Número o nombre" th:value="${param.p2}" readonly autocomplete="off">
+					<div id="suggestions-p2" class="suggest-menu">
+						<div class="suggest-item" th:each="pk : ${listaPokemon}" th:data-value="${pk.numero}" th:data-text="${pk.numero + ' - ' + pk.nombre}" th:text="${'#' + pk.numero + ' - ' + pk.nombre}"></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-12 col-lg-2 d-grid">
+				<button class="btn btn-primary btn-lg"><i class="fas fa-search me-2"></i>Comparar</button>
+			</div>
+		</form>
+
+		<div class="compare-grid" th:if="${p1 != null || p2 != null}">
+			<!-- Col P1 -->
+			<div class="compare-col">
+				<div class="card pokemon-card h-100"
+					 th:classappend="${p1 != null && p2 != null && p1.totalStats >= p2.totalStats} ? ' winner' : ''">
+					<div class="card-body" th:if="${p1 != null}">
+						<div class="text-center mb-3">
+							<img th:src="${p1.imagenUrl}" class="pokemon-img" th:alt="${p1.nombre}">
+						</div>
+						<h3 class="text-center mb-1" th:text="${'#' + p1.numero + ' - ' + p1.nombre}">#1 - Bulbasaur</h3>
+						<p class="text-center mb-4">
+							<span class="type-badge me-2" th:classappend="' type-' + ${#strings.toLowerCase(p1.tipo1)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(p1.tipo1),'áéíóú','aeiou')}" th:text="${p1.tipo1}">Planta</span>
+							<span class="type-badge" th:if="${p1.tipo2 != null && p1.tipo2 != ''}"
+								  th:classappend="' type-' + ${#strings.toLowerCase(p1.tipo2)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(p1.tipo2),'áéíóú','aeiou')}" th:text="${p1.tipo2}">Veneno</span>
+						</p>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">HP</span>
+								<span class="stat-val hp" th:text="${p1.hp}">45</span>
+							</div>
+							<div class="progress"><div class="progress-bar hp" role="progressbar" th:style="'width:' + ${p1.hp*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Ataque</span>
+								<span class="stat-val atk" th:text="${p1.ataque}">49</span>
+							</div>
+							<div class="progress"><div class="progress-bar atk" th:style="'width:' + ${p1.ataque*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Defensa</span>
+								<span class="stat-val def" th:text="${p1.defensa}">49</span>
+							</div>
+							<div class="progress"><div class="progress-bar def" th:style="'width:' + ${p1.defensa*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Ataque Especial</span>
+								<span class="stat-val spa" th:text="${p1.ataqueEspecial}">65</span>
+							</div>
+							<div class="progress"><div class="progress-bar spa" th:style="'width:' + ${p1.ataqueEspecial*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Defensa Especial</span>
+								<span class="stat-val spd" th:text="${p1.defensaEspecial}">65</span>
+							</div>
+							<div class="progress"><div class="progress-bar spd" th:style="'width:' + ${p1.defensaEspecial*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-3">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Velocidad</span>
+								<span class="stat-val spe" th:text="${p1.velocidad}">45</span>
+							</div>
+							<div class="progress"><div class="progress-bar spe" th:style="'width:' + ${p1.velocidad*100/255} + '%'" ></div></div>
+						</div>
+						<div class="text-center fw-bold">Total: <span th:text="${p1.totalStats}">318</span></div>
+					</div>
+					<div class="card-body text-center text-muted" th:if="${p1 == null}">Elige un Pokémon 1</div>
+				</div>
+			</div>
+
+			<!-- Col VS -->
+			<div class="vs-col">
+				<div class="vs-icon mb-2"><i class="fas fa-bolt text-warning"></i></div>
+				<div class="fw-bold">VS</div>
+			</div>
+
+			<!-- Col P2 -->
+			<div class="compare-col">
+				<div class="card pokemon-card h-100"
+					 th:classappend="${p1 != null && p2 != null && p2.totalStats > p1.totalStats} ? ' winner' : ''">
+					<div class="card-body" th:if="${p2 != null}">
+						<div class="text-center mb-3">
+							<img th:src="${p2.imagenUrl}" class="pokemon-img" th:alt="${p2.nombre}">
+						</div>
+						<h3 class="text-center mb-1" th:text="${'#' + p2.numero + ' - ' + p2.nombre}">#4 - Charmander</h3>
+						<p class="text-center mb-4">
+							<span class="type-badge me-2" th:classappend="' type-' + ${#strings.toLowerCase(p2.tipo1)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(p2.tipo1),'áéíóú','aeiou')}" th:text="${p2.tipo1}">Fuego</span>
+							<span class="type-badge" th:if="${p2.tipo2 != null && p2.tipo2 != ''}"
+								  th:classappend="' type-' + ${#strings.toLowerCase(p2.tipo2)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(p2.tipo2),'áéíóú','aeiou')}" th:text="${p2.tipo2}">-</span>
+						</p>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">HP</span>
+								<span class="stat-val hp" th:text="${p2.hp}">39</span>
+							</div>
+							<div class="progress"><div class="progress-bar hp" th:style="'width:' + ${p2.hp*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Ataque</span>
+								<span class="stat-val atk" th:text="${p2.ataque}">52</span>
+							</div>
+							<div class="progress"><div class="progress-bar atk" th:style="'width:' + ${p2.ataque*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Defensa</span>
+								<span class="stat-val def" th:text="${p2.defensa}">43</span>
+							</div>
+							<div class="progress"><div class="progress-bar def" th:style="'width:' + ${p2.defensa*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Ataque Especial</span>
+								<span class="stat-val spa" th:text="${p2.ataqueEspecial}">60</span>
+							</div>
+							<div class="progress"><div class="progress-bar spa" th:style="'width:' + ${p2.ataqueEspecial*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-2">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Defensa Especial</span>
+								<span class="stat-val spd" th:text="${p2.defensaEspecial}">50</span>
+							</div>
+							<div class="progress"><div class="progress-bar spd" th:style="'width:' + ${p2.defensaEspecial*100/255} + '%'" ></div></div>
+						</div>
+						<div class="mb-3">
+							<div class="d-flex justify-content-between align-items-center">
+								<span class="stat-label">Velocidad</span>
+								<span class="stat-val spe" th:text="${p2.velocidad}">65</span>
+							</div>
+							<div class="progress"><div class="progress-bar spe" th:style="'width:' + ${p2.velocidad*100/255} + '%'" ></div></div>
+						</div>
+						<div class="text-center fw-bold">Total: <span th:text="${p2.totalStats}">309</span></div>
+					</div>
+					<div class="card-body text-center text-muted" th:if="${p2 == null}">Elige un Pokémon 2</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="alert alert-info text-center mt-3" th:if="${p1 != null && p2 != null}">
+			Diferencia de total (P1 - P2): <strong th:text="${deltaTotal}">0</strong>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		function initSuggest(inputId, menuId){
+			const inp = document.getElementById(inputId);
+			const menu = document.getElementById(menuId);
+			function filter(){
+				const q = inp.value.trim().toLowerCase();
+				let any=false;
+				menu.querySelectorAll('.suggest-item').forEach(it=>{
+					const text = (it.dataset.text||'').toLowerCase();
+					const val = (it.dataset.value||'').toString();
+					const match = !q || text.includes(q) || val.includes(q);
+					it.style.display = match ? '' : 'none';
+					if(match) any=true;
+				});
+				menu.style.display = any ? 'block' : 'none';
+			}
+			// Bloquear teclado y pegado
+			inp.addEventListener('keydown', e=>{ if(e.key !== 'Tab') e.preventDefault(); });
+			inp.addEventListener('paste', e=> e.preventDefault());
+			inp.addEventListener('input', e=> e.preventDefault());
+			inp.addEventListener('focus', filter);
+			inp.addEventListener('click', ()=>{ menu.style.display = (menu.style.display==='block') ? 'none' : 'block'; if(menu.style.display==='block') filter(); });
+			inp.addEventListener('blur', ()=> setTimeout(()=> menu.style.display='none', 150));
+			menu.addEventListener('mousedown', e=>{ e.preventDefault(); });
+			menu.addEventListener('click', e=>{
+				const item = e.target.closest('.suggest-item');
+				if(!item) return;
+				inp.value = item.dataset.value;
+				menu.style.display='none';
+			});
+		}
+		document.addEventListener('DOMContentLoaded', ()=>{
+			initSuggest('input-p1','suggestions-p1');
+			initSuggest('input-p2','suggestions-p2');
+		});
+	</script>
+</body>
+</html>

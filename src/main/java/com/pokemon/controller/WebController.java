@@ -126,4 +126,38 @@ public class WebController {
         model.addAttribute("titulo", "Acerca de");
         return "about";
     }
+
+    @GetMapping("/comparar")
+    public String comparar(@RequestParam(required = false) String p1,
+                           @RequestParam(required = false) String p2,
+                           Model model) {
+        // Lista para selects
+        java.util.List<Pokemon> todos = pokemonService.obtenerTodosLosPokemon();
+        model.addAttribute("listaPokemon", todos);
+        model.addAttribute("titulo", "Comparador de Pokémon");
+
+        Pokemon a = null;
+        Pokemon b = null;
+        if (p1 != null && !p1.isBlank()) {
+            a = resolverPokemon(p1);
+        }
+        if (p2 != null && !p2.isBlank()) {
+            b = resolverPokemon(p2);
+        }
+        model.addAttribute("p1", a);
+        model.addAttribute("p2", b);
+        if (a != null && b != null) {
+            model.addAttribute("deltaTotal", a.getTotalStats() - b.getTotalStats());
+        }
+        return "comparar";
+    }
+
+    private Pokemon resolverPokemon(String clave) {
+        try {
+            Integer numero = Integer.parseInt(clave);
+            return pokemonService.obtenerPokemonPorNumero(numero).orElse(null);
+        } catch (NumberFormatException ignore) {
+            return pokemonService.obtenerPokemonPorNombre(clave).orElse(null);
+        }
+    }
 }
