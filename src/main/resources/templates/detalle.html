@@ -312,7 +312,7 @@
                         </div>
                         <div th:if="${!stat.last}" class="text-center mx-3">
                             <i class="fas fa-arrow-right fa-2x text-muted"></i>
-                            <div class="small text-muted mt-1" th:text="${evoluciones[stat.index + 1].nivelMinimo != null ? 'Nv. ' + evoluciones[stat.index + 1].nivelMinimo : '—'}">Nv. 16</div>
+                            <div class="small text-muted mt-1" th:text="${evoluciones[stat.index + 1].nivelMinimo != null ? 'Nv. ' + evoluciones[stat.index + 1].nivelMinimo : (evoluciones[stat.index + 1].condicion != null ? evoluciones[stat.index + 1].condicion : '—')}">Nv. 16</div>
                         </div>
                     </div>
                 </div>

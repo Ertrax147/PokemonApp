@@ -4,13 +4,15 @@ public class Evolucion {
 	private Integer numero;
 	private String nombre;
 	private Integer nivelMinimo; // puede ser null si es la forma base o no tiene nivel
+	private String condicion; // texto humano (p. ej., "Piedra Trueno", "Intercambio", "Amistad alta", "De noche")
 
 	public Evolucion() {}
 
-	public Evolucion(Integer numero, String nombre, Integer nivelMinimo) {
+	public Evolucion(Integer numero, String nombre, Integer nivelMinimo, String condicion) {
 		this.numero = numero;
 		this.nombre = nombre;
 		this.nivelMinimo = nivelMinimo;
+		this.condicion = condicion;
 	}
 
 	public Integer getNumero() { return numero; }
@@ -21,4 +23,7 @@ public class Evolucion {
 
 	public Integer getNivelMinimo() { return nivelMinimo; }
 	public void setNivelMinimo(Integer nivelMinimo) { this.nivelMinimo = nivelMinimo; }
+
+	public String getCondicion() { return condicion; }
+	public void setCondicion(String condicion) { this.condicion = condicion; }
 }

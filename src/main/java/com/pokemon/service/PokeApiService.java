@@ -9,7 +9,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,28 +162,74 @@ public class PokeApiService {
 	}
 
 	private java.util.List<Evolucion> construirCadenaLineal(EvolutionChainResponse chainResponse) {
-		java.util.List<Evolucion> resultado = new ArrayList<>();
+		java.util.List<Evolucion> resultado = new java.util.ArrayList<>();
 		if (chainResponse == null || chainResponse.getChain() == null) {
 			return resultado;
 		}
 		EvolutionChainResponse.Chain actual = chainResponse.getChain();
 		Integer nivel = null; // nivel para llegar al nodo actual desde el anterior
+		String condicion = null;
 		while (actual != null) {
 			Integer id = extraerIdDesdeUrl(actual.getSpecies().getUrl());
 			String nombre = capitalizarPrimeraLetra(actual.getSpecies().getName());
-			resultado.add(new Evolucion(id, nombre, nivel));
+			resultado.add(new Evolucion(id, nombre, nivel, condicion));
 			if (actual.getEvolvesTo() == null || actual.getEvolvesTo().isEmpty()) {
 				break;
 			}
 			EvolutionChainResponse.Chain siguiente = actual.getEvolvesTo().get(0);
 			nivel = null;
+			condicion = null;
 			if (siguiente.getEvolutionDetails() != null && !siguiente.getEvolutionDetails().isEmpty()) {
 				EvolutionChainResponse.EvolutionDetail det = siguiente.getEvolutionDetails().get(0);
 				nivel = det.getMinLevel();
+				condicion = describirCondicion(det);
 			}
 			actual = siguiente;
 		}
 		return resultado;
+	}
+
+	private String describirCondicion(EvolutionChainResponse.EvolutionDetail det) {
+		if (det == null) return null;
+		if (det.getItem() != null && det.getItem().getName() != null) {
+			return describirItem(det.getItem().getName());
+		}
+		if (det.getTrigger() != null && det.getTrigger().getName() != null) {
+			String trigger = det.getTrigger().getName();
+			if ("trade".equalsIgnoreCase(trigger)) {
+				return "Por intercambio";
+			}
+			if ("level-up".equalsIgnoreCase(trigger) && det.getTimeOfDay() != null && !det.getTimeOfDay().isEmpty()) {
+				return det.getTimeOfDay().equalsIgnoreCase("night") ? "De noche" : "De día";
+			}
+			if ("use-item".equalsIgnoreCase(trigger) && det.getItem() != null) {
+				return describirItem(det.getItem().getName());
+			}
+		}
+		if (det.getMinHappiness() != null) {
+			return "Alta amistad";
+		}
+		return null;
+	}
+
+	private String describirItem(String itemSlug) {
+		if (itemSlug == null) return null;
+		switch (itemSlug) {
+			case "thunder-stone": return "Piedra Trueno";
+			case "fire-stone": return "Piedra Fuego";
+			case "water-stone": return "Piedra Agua";
+			case "leaf-stone": return "Piedra Hoja";
+			case "moon-stone": return "Piedra Lunar";
+			case "sun-stone": return "Piedra Solar";
+			case "dawn-stone": return "Piedra Alba";
+			case "dusk-stone": return "Piedra Noche";
+			case "shiny-stone": return "Piedra Día";
+			case "ice-stone": return "Piedra Hielo";
+			case "oval-stone": return "Piedra Oval";
+			default:
+				String pretty = itemSlug.replace('-', ' ');
+				return capitalizarPrimeraLetra(pretty);
+		}
 	}
 
 	private Integer extraerIdDesdeUrl(String url) {
@@ -239,8 +284,30 @@ public class PokeApiService {
 		public static class EvolutionDetail {
 			@JsonProperty("min_level")
 			private Integer min_level;
+			private NamedResource item;
+			private NamedResource trigger;
+			@JsonProperty("time_of_day")
+			private String time_of_day;
+			@JsonProperty("min_happiness")
+			private Integer min_happiness;
 			public Integer getMinLevel() { return min_level; }
 			public void setMinLevel(Integer min_level) { this.min_level = min_level; }
+			public NamedResource getItem() { return item; }
+			public void setItem(NamedResource item) { this.item = item; }
+			public NamedResource getTrigger() { return trigger; }
+			public void setTrigger(NamedResource trigger) { this.trigger = trigger; }
+			public String getTimeOfDay() { return time_of_day; }
+			public void setTimeOfDay(String time_of_day) { this.time_of_day = time_of_day; }
+			public Integer getMinHappiness() { return min_happiness; }
+			public void setMinHappiness(Integer min_happiness) { this.min_happiness = min_happiness; }
+		}
+		public static class NamedResource {
+			private String name;
+			private String url;
+			public String getName() { return name; }
+			public void setName(String name) { this.name = name; }
+			public String getUrl() { return url; }
+			public void setUrl(String url) { this.url = url; }
 		}
 	}
 
