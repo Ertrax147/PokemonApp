@@ -33,13 +33,30 @@
             font-weight: bold;
             color: white;
         }
-        .type-planta { background-color: #4CAF50; }
-        .type-veneno { background-color: #9C27B0; }
-        .type-fuego { background-color: #FF5722; }
-        .type-agua { background-color: #2196F3; }
-        .type-bicho { background-color: #8BC34A; }
-        .type-volador { background-color: #03A9F4; }
-        .type-normal { background-color: #9E9E9E; }
+        /* Colores por tipo */
+        .type-normal { background-color: #A8A77A; }
+        .type-fuego { background-color: #EE8130; }
+        .type-agua { background-color: #6390F0; }
+        .type-planta { background-color: #7AC74C; }
+        .type-eléctrico { background-color: #F7D02C; }
+        .type-hielo { background-color: #96D9D6; }
+        .type-lucha { background-color: #C22E28; }
+        .type-veneno { background-color: #A33EA1; }
+        .type-tierra { background-color: #E2BF65; }
+        .type-volador { background-color: #A98FF3; }
+        .type-psíquico { background-color: #F95587; }
+        .type-bicho { background-color: #A6B91A; }
+        .type-roca { background-color: #B6A136; }
+        .type-fantasma { background-color: #735797; }
+        .type-dragón { background-color: #6F35FC; }
+        .type-siniestro { background-color: #705746; }
+        .type-acero { background-color: #B7B7CE; }
+        .type-hada { background-color: #D685AD; }
+        /* Alias sin acentos por compatibilidad */
+        .type-electrico { background-color: #F7D02C; }
+        .type-psiquico { background-color: #F95587; }
+        .type-dragon { background-color: #6F35FC; }
+        .type-siniestro { background-color: #705746; }
         .search-container {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 2rem 0;
@@ -125,11 +142,11 @@
                         <!-- Types -->
                         <div class="mb-3">
                             <span class="type-badge me-1" 
-                                  th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo1)}"
-                                  th:text="${pokemon.tipo1}">Tipo</span>
+                                   th:classappend="' type-' + ${#strings.toLowerCase(pokemon.tipo1)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(pokemon.tipo1), 'áéíóú', 'aeiou')}"
+                                   th:text="${pokemon.tipo1}">Tipo</span>
                             <span class="type-badge" 
                                   th:if="${pokemon.tipo2 != null and pokemon.tipo2 != ''}"
-                                  th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo2)}"
+                                  th:classappend="' type-' + ${#strings.toLowerCase(pokemon.tipo2)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(pokemon.tipo2), 'áéíóú', 'aeiou')}"
                                   th:text="${pokemon.tipo2}">Tipo2</span>
                         </div>
                         

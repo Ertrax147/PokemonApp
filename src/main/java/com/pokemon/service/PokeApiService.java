@@ -72,9 +72,9 @@ public class PokeApiService {
         
         // Obtener tipos
         if (response.getTypes() != null && !response.getTypes().isEmpty()) {
-            pokemon.setTipo1(capitalizarPrimeraLetra(response.getTypes().get(0).getType().getName()));
+            pokemon.setTipo1(traducirTipo(response.getTypes().get(0).getType().getName()));
             if (response.getTypes().size() > 1) {
-                pokemon.setTipo2(capitalizarPrimeraLetra(response.getTypes().get(1).getType().getName()));
+                pokemon.setTipo2(traducirTipo(response.getTypes().get(1).getType().getName()));
             }
         }
         
@@ -287,6 +287,7 @@ public class PokeApiService {
         }
         
         public static class Stat {
+            @JsonProperty("base_stat")
             private Integer baseStat;
             private StatInfo stat;
             
@@ -302,6 +303,31 @@ public class PokeApiService {
                 public String getName() { return name; }
                 public void setName(String name) { this.name = name; }
             }
+        }
+    }
+
+    private String traducirTipo(String typeEn) {
+        if (typeEn == null) return null;
+        switch (typeEn.toLowerCase()) {
+            case "normal": return "Normal";
+            case "fire": return "Fuego";
+            case "water": return "Agua";
+            case "grass": return "Planta";
+            case "electric": return "Eléctrico";
+            case "ice": return "Hielo";
+            case "fighting": return "Lucha";
+            case "poison": return "Veneno";
+            case "ground": return "Tierra";
+            case "flying": return "Volador";
+            case "psychic": return "Psíquico";
+            case "bug": return "Bicho";
+            case "rock": return "Roca";
+            case "ghost": return "Fantasma";
+            case "dragon": return "Dragón";
+            case "dark": return "Siniestro";
+            case "steel": return "Acero";
+            case "fairy": return "Hada";
+            default: return capitalizarPrimeraLetra(typeEn);
         }
     }
 }
