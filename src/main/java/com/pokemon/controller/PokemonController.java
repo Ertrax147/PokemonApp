@@ -53,7 +53,7 @@ public class PokemonController {
     
     @PutMapping("/{id}")
     public ResponseEntity<Pokemon> actualizarPokemon(@PathVariable Long id, @RequestBody Pokemon pokemon) {
-        if (!pokemonService.existePokemonPorNumero(pokemon.getNumero())) {
+        if (!pokemonService.existePokemonPorId(id)) {
             return ResponseEntity.notFound().build();
         }
         pokemon.setId(id);

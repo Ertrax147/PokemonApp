@@ -40,8 +40,8 @@ public class PokeApiService {
                     System.out.println("✅ Conexión a PokeAPI exitosa");
                     return true;
                 })
-                .onErrorReturn(false)
-                .doOnError(error -> System.err.println("❌ Error de conectividad con PokeAPI: " + error.getMessage()));
+                .doOnError(error -> System.err.println("❌ Error de conectividad con PokeAPI: " + error.getMessage()))
+                .onErrorReturn(false);
     }
 
     public Flux<Pokemon> obtenerPokemonPrimeraGeneracion() {
@@ -132,7 +132,7 @@ public class PokeApiService {
             case 133: return "Un Pokémon raro que puede evolucionar de muchas maneras diferentes.";
             case 150: return "Fue creado por un científico después de años de horribles experimentos de manipulación genética.";
             case 151: return "Un Pokémon legendario que se dice que contiene todos los códigos genéticos de los Pokémon.";
-            default: return "Un Pokémon fascinante de la primera generación con habilidades únicas.";
+            default: return "Un Pokémon con habilidades únicas.";
         }
     }
     
@@ -158,6 +158,9 @@ public class PokeApiService {
         pokemon.setPeso(10.0);
         pokemon.setDescripcion("Información no disponible");
         pokemon.setImagenUrl("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + numero + ".png");
+        // Establecer generación basada en el número (1: 1-151, 2: 152-251, 3: 252-386)
+        int gen = numero != null && numero <= 151 ? 1 : (numero != null && numero <= 251 ? 2 : (numero != null && numero <= 386 ? 3 : 4));
+        pokemon.setGeneracion(gen);
         return pokemon;
     }
     

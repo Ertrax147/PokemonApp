@@ -24,10 +24,13 @@ public class WebController {
     private PokeApiService pokeApiService;
     
     @GetMapping("/")
-    public String home(Model model) {
-        List<Pokemon> pokemons = pokemonService.obtenerTodosLosPokemon();
-        model.addAttribute("pokemons", pokemons);
-        model.addAttribute("titulo", "Pokédex - Primera Generación");
+    public String home(@RequestParam(required = false, defaultValue = "0") Integer page,
+                       @RequestParam(required = false, defaultValue = "24") Integer size,
+                       Model model) {
+        var pageResult = pokemonService.obtenerTodosLosPokemonPaginado(Math.max(0, page), Math.max(1, size));
+        model.addAttribute("pokemons", pageResult.getContent());
+        model.addAttribute("page", pageResult);
+        model.addAttribute("titulo", "Pokédex - Generaciones 1-3");
         return "index";
     }
     
@@ -96,9 +99,12 @@ public class WebController {
     public String buscarPokemon(@RequestParam(required = false) String nombre,
                                 @RequestParam(required = false) String tipo,
                                 @RequestParam(required = false, name = "gen") java.util.List<Integer> generaciones,
+                                @RequestParam(required = false, defaultValue = "0") Integer page,
+                                @RequestParam(required = false, defaultValue = "12") Integer size,
                                 Model model) {
-        List<Pokemon> pokemons = pokemonService.buscarPorNombreTipoYGeneraciones(nombre, tipo, generaciones);
-        model.addAttribute("pokemons", pokemons);
+        var pageResult = pokemonService.buscarPorNombreTipoYGeneracionesPaginado(nombre, tipo, generaciones, Math.max(0, page), Math.max(1, size));
+        model.addAttribute("pokemons", pageResult.getContent());
+        model.addAttribute("page", pageResult);
         if (nombre != null && !nombre.isBlank()) {
             model.addAttribute("busqueda", nombre);
         }
@@ -113,9 +119,13 @@ public class WebController {
     }
     
     @GetMapping("/tipo/{tipo}")
-    public String pokemonPorTipo(@PathVariable String tipo, Model model) {
-        List<Pokemon> pokemons = pokemonService.obtenerPokemonPorTipo(tipo);
-        model.addAttribute("pokemons", pokemons);
+    public String pokemonPorTipo(@PathVariable String tipo,
+                                 @RequestParam(required = false, defaultValue = "0") Integer page,
+                                 @RequestParam(required = false, defaultValue = "24") Integer size,
+                                 Model model) {
+        var pageResult = pokemonService.obtenerPokemonPorTipoPaginado(tipo, Math.max(0, page), Math.max(1, size));
+        model.addAttribute("pokemons", pageResult.getContent());
+        model.addAttribute("page", pageResult);
         model.addAttribute("tipo", tipo);
         model.addAttribute("titulo", "Pokémon de tipo " + tipo);
         return "index";

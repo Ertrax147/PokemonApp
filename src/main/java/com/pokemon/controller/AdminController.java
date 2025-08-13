@@ -33,9 +33,8 @@ public class AdminController {
     @PostMapping("/reload")
     public String recargarPokemon(Model model) {
         try {
-            // Limpiar base de datos existente
-            pokemonService.obtenerTodosLosPokemon().forEach(pokemon -> 
-                pokemonService.eliminarPokemon(pokemon.getId()));
+            // Limpiar base de datos existente de forma eficiente
+            pokemonService.eliminarTodos();
             
             // Cargar desde la API (Gen 1-3)
             List<Pokemon> pokemons = pokeApiService.obtenerPokemonGenUnoATres()
@@ -43,7 +42,7 @@ public class AdminController {
                     .block();
             
             if (pokemons != null && !pokemons.isEmpty()) {
-                pokemons.forEach(pokemonService::guardarPokemon);
+                pokemonService.guardarTodos(pokemons);
                 model.addAttribute("mensaje", "✅ Se recargaron " + pokemons.size() + " Pokémon exitosamente");
                 model.addAttribute("tipoMensaje", "success");
             } else {

@@ -180,10 +180,12 @@
                     <a href="/admin" class="btn btn-primary me-2">
                         <i class="fas fa-arrow-left me-2"></i>Volver al Admin
                     </a>
-                    <a href="/admin/reload" class="btn btn-warning" 
-                       onclick="return confirm('¿Recargar todos los Pokémon desde la API?')">
-                        <i class="fas fa-sync-alt me-2"></i>Recargar Pokémon
-                    </a>
+                    <form th:action="@{/admin/reload}" method="post" style="display:inline;"
+                          onsubmit="return confirm('¿Recargar todos los Pokémon desde la API?')">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-sync-alt me-2"></i>Recargar Pokémon
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Mensaje de Error -->
