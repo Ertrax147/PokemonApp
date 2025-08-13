@@ -590,4 +590,83 @@ public class PokeApiService {
             public void setName(String name) { this.name = name; }
         }
     }
+
+    public java.util.List<com.pokemon.dto.TypeEffect> obtenerEfectividades(String tipo1Es, String tipo2Es) {
+        java.util.Map<String, java.util.Map<String, Double>> chart = getEffectivenessChartEs();
+        java.util.List<String> defensas = new java.util.ArrayList<>();
+        if (tipo1Es != null && !tipo1Es.isEmpty()) defensas.add(tipo1Es);
+        if (tipo2Es != null && !tipo2Es.isEmpty()) defensas.add(tipo2Es);
+        java.util.List<com.pokemon.dto.TypeEffect> resultado = new java.util.ArrayList<>();
+        for (String atacante : chart.keySet()) {
+            double mult = 1.0;
+            for (String defensa : defensas) {
+                mult *= chart.getOrDefault(atacante, java.util.Collections.emptyMap())
+                             .getOrDefault(defensa, 1.0);
+            }
+            resultado.add(new com.pokemon.dto.TypeEffect(atacante, mult));
+        }
+        // Ordenar: x4, x2, x1, x0.5, x0.25, x0
+        resultado.sort(java.util.Comparator
+                .comparingDouble((com.pokemon.dto.TypeEffect e) -> -e.getMultiplicador()));
+        return resultado;
+    }
+
+    private java.util.Map<String, java.util.Map<String, Double>> getEffectivenessChartEs() {
+        // Matriz estándar (atacante -> defensa -> multiplicador) en español
+        String[] tipos = {"Normal","Fuego","Agua","Planta","Eléctrico","Hielo","Lucha","Veneno","Tierra","Volador","Psíquico","Bicho","Roca","Fantasma","Dragón","Siniestro","Acero","Hada"};
+        java.util.Map<String, java.util.Map<String, Double>> m = new java.util.HashMap<>();
+        for (String t : tipos) m.put(t, new java.util.HashMap<>());
+        // Normal
+        m.get("Normal").put("Roca", 0.5); m.get("Normal").put("Acero", 0.5); m.get("Normal").put("Fantasma", 0.0);
+        // Fuego
+        m.get("Fuego").put("Fuego", 0.5); m.get("Fuego").put("Agua", 0.5); m.get("Fuego").put("Roca", 0.5); m.get("Fuego").put("Dragón", 0.5);
+        m.get("Fuego").put("Planta", 2.0); m.get("Fuego").put("Hielo", 2.0); m.get("Fuego").put("Bicho", 2.0); m.get("Fuego").put("Acero", 2.0);
+        // Agua
+        m.get("Agua").put("Agua", 0.5); m.get("Agua").put("Planta", 0.5); m.get("Agua").put("Dragón", 0.5);
+        m.get("Agua").put("Fuego", 2.0); m.get("Agua").put("Tierra", 2.0); m.get("Agua").put("Roca", 2.0);
+        // Planta
+        m.get("Planta").put("Fuego", 0.5); m.get("Planta").put("Planta", 0.5); m.get("Planta").put("Veneno", 0.5); m.get("Planta").put("Volador", 0.5); m.get("Planta").put("Bicho", 0.5); m.get("Planta").put("Dragón", 0.5); m.get("Planta").put("Acero", 0.5);
+        m.get("Planta").put("Agua", 2.0); m.get("Planta").put("Tierra", 2.0); m.get("Planta").put("Roca", 2.0);
+        // Eléctrico
+        m.get("Eléctrico").put("Planta", 0.5); m.get("Eléctrico").put("Eléctrico", 0.5); m.get("Eléctrico").put("Dragón", 0.5); m.get("Eléctrico").put("Tierra", 0.0); m.get("Eléctrico").put("Agua", 2.0); m.get("Eléctrico").put("Volador", 2.0);
+        // Hielo
+        m.get("Hielo").put("Fuego", 0.5); m.get("Hielo").put("Agua", 0.5); m.get("Hielo").put("Hielo", 0.5); m.get("Hielo").put("Acero", 0.5);
+        m.get("Hielo").put("Planta", 2.0); m.get("Hielo").put("Tierra", 2.0); m.get("Hielo").put("Volador", 2.0); m.get("Hielo").put("Dragón", 2.0);
+        // Lucha
+        m.get("Lucha").put("Volador", 0.5); m.get("Lucha").put("Psíquico", 0.5); m.get("Lucha").put("Bicho", 0.5); m.get("Lucha").put("Hada", 0.5); m.get("Lucha").put("Fantasma", 0.0);
+        m.get("Lucha").put("Normal", 2.0); m.get("Lucha").put("Hielo", 2.0); m.get("Lucha").put("Roca", 2.0); m.get("Lucha").put("Siniestro", 2.0); m.get("Lucha").put("Acero", 2.0);
+        // Veneno
+        m.get("Veneno").put("Tierra", 0.5); m.get("Veneno").put("Roca", 0.5); m.get("Veneno").put("Fantasma", 0.5); m.get("Veneno").put("Acero", 0.0);
+        m.get("Veneno").put("Planta", 2.0); m.get("Veneno").put("Hada", 2.0);
+        // Tierra
+        m.get("Tierra").put("Planta", 0.5); m.get("Tierra").put("Bicho", 0.5); m.get("Tierra").put("Volador", 0.0);
+        m.get("Tierra").put("Fuego", 2.0); m.get("Tierra").put("Eléctrico", 2.0); m.get("Tierra").put("Acero", 2.0); m.get("Tierra").put("Roca", 2.0); m.get("Tierra").put("Veneno", 2.0);
+        // Volador
+        m.get("Volador").put("Eléctrico", 0.5); m.get("Volador").put("Roca", 0.5); m.get("Volador").put("Acero", 0.5);
+        m.get("Volador").put("Planta", 2.0); m.get("Volador").put("Lucha", 2.0); m.get("Volador").put("Bicho", 2.0);
+        // Psíquico
+        m.get("Psíquico").put("Psíquico", 0.5); m.get("Psíquico").put("Acero", 0.5); m.get("Psíquico").put("Siniestro", 0.0);
+        m.get("Psíquico").put("Lucha", 2.0); m.get("Psíquico").put("Veneno", 2.0);
+        // Bicho
+        m.get("Bicho").put("Fuego", 0.5); m.get("Bicho").put("Lucha", 0.5); m.get("Bicho").put("Veneno", 0.5); m.get("Bicho").put("Volador", 0.5); m.get("Bicho").put("Fantasma", 0.5); m.get("Bicho").put("Acero", 0.5); m.get("Bicho").put("Hada", 0.5);
+        m.get("Bicho").put("Planta", 2.0); m.get("Bicho").put("Psíquico", 2.0); m.get("Bicho").put("Siniestro", 2.0);
+        // Roca
+        m.get("Roca").put("Lucha", 0.5); m.get("Roca").put("Tierra", 0.5); m.get("Roca").put("Acero", 0.5);
+        m.get("Roca").put("Fuego", 2.0); m.get("Roca").put("Hielo", 2.0); m.get("Roca").put("Volador", 2.0); m.get("Roca").put("Bicho", 2.0);
+        // Fantasma
+        m.get("Fantasma").put("Siniestro", 0.5); m.get("Fantasma").put("Normal", 0.0);
+        m.get("Fantasma").put("Fantasma", 2.0); m.get("Fantasma").put("Psíquico", 2.0);
+        // Dragón
+        m.get("Dragón").put("Acero", 0.5); m.get("Dragón").put("Hada", 0.0);
+        m.get("Dragón").put("Dragón", 2.0);
+        // Siniestro
+        m.get("Siniestro").put("Lucha", 0.5); m.get("Siniestro").put("Hada", 0.5); m.get("Siniestro").put("Psíquico", 2.0); m.get("Siniestro").put("Fantasma", 2.0);
+        // Acero
+        m.get("Acero").put("Fuego", 0.5); m.get("Acero").put("Agua", 0.5); m.get("Acero").put("Eléctrico", 0.5); m.get("Acero").put("Acero", 0.5);
+        m.get("Acero").put("Hielo", 2.0); m.get("Acero").put("Roca", 2.0); m.get("Acero").put("Hada", 2.0);
+        // Hada
+        m.get("Hada").put("Fuego", 0.5); m.get("Hada").put("Veneno", 0.5); m.get("Hada").put("Acero", 0.5);
+        m.get("Hada").put("Lucha", 2.0); m.get("Hada").put("Dragón", 2.0); m.get("Hada").put("Siniestro", 2.0);
+        return m;
+    }
 }

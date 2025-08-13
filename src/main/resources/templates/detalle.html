@@ -117,6 +117,7 @@
                 <a class="nav-link" href="/">Inicio</a>
                 <a class="nav-link" href="/about">Acerca de</a>
                 <a class="nav-link" href="/admin">Admin</a>
+                <a class="nav-link" href="#" onclick="toggleDarkMode(); return false;" id="dark-toggle">Modo oscuro</a>
             </div>
         </div>
     </nav>
@@ -332,6 +333,65 @@
         </div>
     </div>
 
+    <!-- Debilidades y Resistencias -->
+    <div class="container mt-4">
+        <div class="card info-card">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Debilidades y Resistencias</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x4</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge" th:each="eff : ${effX4}"
+                                  th:classappend="' type-' + ${#strings.toLowerCase(eff.tipo)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(eff.tipo), 'áéíóú', 'aeiou')}"
+                                  th:text="${eff.tipo}">Fuego</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x2</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge" th:each="eff : ${effX2}"
+                                  th:classappend="' type-' + ${#strings.toLowerCase(eff.tipo)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(eff.tipo), 'áéíóú', 'aeiou')}"
+                                  th:text="${eff.tipo}">Agua</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x1</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge bg-secondary" th:each="eff : ${effX1}"
+                                  th:text="${eff.tipo}">Normal</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x0.5</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge" th:each="eff : ${effX05}"
+                                  th:classappend="' type-' + ${#strings.toLowerCase(eff.tipo)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(eff.tipo), 'áéíóú', 'aeiou')}"
+                                  th:text="${eff.tipo}">Planta</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x0.25</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge" th:each="eff : ${effX025}"
+                                  th:classappend="' type-' + ${#strings.toLowerCase(eff.tipo)} + ' ' + ' type-' + ${#strings.replace(#strings.toLowerCase(eff.tipo), 'áéíóú', 'aeiou')}"
+                                  th:text="${eff.tipo}">Hielo</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="fw-bold">x0</div>
+                        <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
+                            <span class="badge bg-dark" th:each="eff : ${effX0}"
+                                  th:text="${eff.tipo}">Tierra</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-5">
         <div class="container">
@@ -363,7 +423,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             const mode = localStorage.getItem('pokemon_image_mode') || 'artwork';
             applyImageMode(mode);
+            const dark = localStorage.getItem('dark_mode') === '1';
+            document.body.classList.toggle('dark', dark);
+            const dt = document.getElementById('dark-toggle'); if (dt) dt.textContent = dark ? 'Modo claro' : 'Modo oscuro';
         });
+        function toggleDarkMode() {
+            const dark = !document.body.classList.contains('dark');
+            document.body.classList.toggle('dark', dark);
+            localStorage.setItem('dark_mode', dark ? '1' : '0');
+            const dt = document.getElementById('dark-toggle'); if (dt) dt.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+        }
     </script>
+    <style>
+        body.dark { background-color: #121212; color: #e0e0e0; }
+        body.dark .card { background-color: #1e1e1e; }
+        body.dark .navbar-dark { background-color: #000 !important; }
+    </style>
 </body>
 </html>
