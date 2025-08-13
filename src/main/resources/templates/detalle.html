@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pokemon.nombre + ' - Pokédex'}">Detalle Pokémon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .pokemon-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .pokemon-number {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .type-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            margin: 0 5px;
+        }
+        .type-planta { background-color: #4CAF50; }
+        .type-veneno { background-color: #9C27B0; }
+        .type-fuego { background-color: #FF5722; }
+        .type-agua { background-color: #2196F3; }
+        .type-bicho { background-color: #8BC34A; }
+        .type-volador { background-color: #03A9F4; }
+        .type-normal { background-color: #9E9E9E; }
+        .stats-bar {
+            height: 25px;
+            border-radius: 15px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            position: relative;
+            overflow: hidden;
+        }
+        .stats-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3, #03A9F4);
+            border-radius: 15px;
+            transition: width 0.8s ease;
+        }
+        .stats-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .info-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            background: white;
+            color: #667eea;
+        }
+        .pokemon-image img {
+            transition: transform 0.3s ease;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        .pokemon-image img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-dragon me-2"></i>Pokédex
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Inicio</a>
+                <a class="nav-link" href="/about">Acerca de</a>
+                <a class="nav-link" href="/admin">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Pokemon Header -->
+    <div class="pokemon-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="pokemon-number me-3" th:text="${pokemon.numero}">#001</div>
+                        <h1 class="mb-0" th:text="${pokemon.nombre}">Pokemon</h1>
+                    </div>
+                    <div class="mb-3">
+                        <span class="type-badge" 
+                              th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo1)}"
+                              th:text="${pokemon.tipo1}">Tipo</span>
+                        <span class="type-badge" 
+                              th:if="${pokemon.tipo2 != null and pokemon.tipo2 != ''}"
+                              th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo2)}"
+                              th:text="${pokemon.tipo2}">Tipo2</span>
+                    </div>
+                    <p class="mb-3" th:text="${pokemon.descripcion}">Descripción del Pokémon</p>
+                    <a href="/" class="back-button">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Inicio
+                    </a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="pokemon-image mb-3">
+                        <img th:src="${pokemon.imagenUrl}" th:alt="${pokemon.nombre}" 
+                             class="img-fluid" style="width: 200px; height: 200px; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Stats Card -->
+            <div class="col-lg-8 mb-4">
+                <div class="card info-card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estadísticas Base</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">HP</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.hp * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.hp}">45</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">Ataque</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataque * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.ataque}">49</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">Defensa</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensa * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.defensa}">49</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">Ataque Especial</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataqueEspecial * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.ataqueEspecial}">65</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">Defensa Especial</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensaEspecial * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.defensaEspecial}">65</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="stats-label">Velocidad</div>
+                                <div class="stats-bar mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.velocidad * 100 / 255} + '%'"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span th:text="${pokemon.velocidad}">45</span>
+                                    <span class="text-muted">/ 255</span>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <h5>Total de Estadísticas: <span class="text-primary" th:text="${pokemon.totalStats}">318</span></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="card info-card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Altura:</strong>
+                            <span th:text="${pokemon.altura + ' m'}">0.7 m</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Peso:</strong>
+                            <span th:text="${pokemon.peso + ' kg'}">6.9 kg</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Tipos:</strong>
+                            <div class="mt-2">
+                                <span class="type-badge" 
+                                      th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo1)}"
+                                      th:text="${pokemon.tipo1}">Tipo</span>
+                                <span class="type-badge" 
+                                      th:if="${pokemon.tipo2 != null and pokemon.tipo2 != ''}"
+                                      th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo2)}"
+                                      th:text="${pokemon.tipo2}">Tipo2</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Número:</strong>
+                            <span class="badge bg-secondary ms-2" th:text="${pokemon.numero}">001</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="card info-card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-compass me-2"></i>Navegación</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{'/pokemon/' + ${pokemon.numero - 1}}" 
+                               class="btn btn-outline-primary" 
+                               th:if="${pokemon.numero > 1}">
+                                <i class="fas fa-chevron-left me-2"></i>Anterior
+                            </a>
+                            <a th:href="@{'/pokemon/' + ${pokemon.numero + 1}}" 
+                               class="btn btn-outline-primary" 
+                               th:if="${pokemon.numero < 151}">
+                                Siguiente<i class="fas fa-chevron-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Pokédex - Primera Generación. Desarrollado con Spring Boot</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

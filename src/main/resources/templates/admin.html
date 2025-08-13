@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo}">Panel de Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .admin-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .admin-card:hover {
+            transform: translateY(-5px);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+        .action-card {
+            background: linear-gradient(135deg, #2196F3, #03A9F4);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-dragon me-2"></i>Pokédex
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Inicio</a>
+                <a class="nav-link" href="/about">Acerca de</a>
+                <a class="nav-link active" href="/admin">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="container text-center">
+            <h1 class="display-4 mb-4">Panel de Administración</h1>
+            <p class="lead">Gestiona la base de datos de Pokémon</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Alert Messages -->
+        <div th:if="${mensaje != null}" class="alert alert-dismissible fade show" 
+             th:classappend="'alert-' + ${tipoMensaje}" role="alert">
+            <span th:text="${mensaje}">Mensaje</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card stats-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-database fa-3x mb-3"></i>
+                        <h3 class="card-title" th:text="${totalPokemon}">0</h3>
+                        <p class="card-text">Pokémon en la Base de Datos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card action-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-sync-alt fa-3x mb-3"></i>
+                        <h3 class="card-title">151</h3>
+                        <p class="card-text">Pokémon Disponibles en la API</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card admin-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-info-circle fa-3x mb-3 text-info"></i>
+                        <h3 class="card-title">1ª</h3>
+                        <p class="card-text">Generación de Pokémon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card admin-card h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Recargar Base de Datos</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Esta acción eliminará todos los Pokémon actuales y los reemplazará con datos frescos 
+                            obtenidos directamente de la PokeAPI. Los datos incluyen:
+                        </p>
+                        <ul>
+                            <li>Información completa de los 151 Pokémon</li>
+                            <li>Estadísticas base actualizadas</li>
+                            <li>Imágenes oficiales de alta calidad</li>
+                            <li>Tipos y características</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Advertencia:</strong> Esta acción no se puede deshacer.
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <form th:action="@{/admin/reload}" method="post"
+                                      onsubmit="return confirm('¿Estás seguro de que quieres recargar la base de datos?')">
+                                    <button type="submit" class="btn btn-warning btn-lg w-100">
+                                        <i class="fas fa-sync-alt me-2"></i>Recargar desde la API
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/admin/diagnostico" class="btn btn-info btn-lg w-100">
+                                    <i class="fas fa-stethoscope me-2"></i>Diagnóstico del Sistema
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 mb-4">
+                <div class="card admin-card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0"><i class="fas fa-cogs me-2"></i>Información del Sistema</h4>
+                    </div>
+                    <div class="card-body">
+                        <h5>Fuente de Datos</h5>
+                        <p>La aplicación utiliza la <strong>PokeAPI</strong> (https://pokeapi.co/) para obtener información actualizada de los Pokémon.</p>
+                        
+                        <h5>Proceso de Carga</h5>
+                        <ol>
+                            <li>Se conecta a la PokeAPI</li>
+                            <li>Descarga información de los 151 Pokémon</li>
+                            <li>Procesa estadísticas y tipos</li>
+                            <li>Genera URLs de imágenes oficiales</li>
+                            <li>Almacena en la base de datos local</li>
+                        </ol>
+                        
+                        <h5>Ventajas</h5>
+                        <ul>
+                            <li>Datos siempre actualizados</li>
+                            <li>Imágenes oficiales de alta calidad</li>
+                            <li>Información completa y precisa</li>
+                            <li>Sin necesidad de mantenimiento manual</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Status -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card admin-card">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Estado de la API</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>PokeAPI Status</h5>
+                                <p><span class="badge bg-success">Online</span> La API está funcionando correctamente</p>
+                                <p><strong>URL:</strong> https://pokeapi.co/api/v2</p>
+                                <p><strong>Versión:</strong> v2</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Imágenes</h5>
+                                <p><span class="badge bg-success">Disponible</span> Imágenes oficiales de alta calidad</p>
+                                <p><strong>Formato:</strong> PNG</p>
+                                <p><strong>Resolución:</strong> Hasta 475x475 píxeles</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Pokédex - Primera Generación. Desarrollado con Spring Boot</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

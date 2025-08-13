@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo}">Pokédex - Primera Generación</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .pokemon-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .pokemon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .pokemon-number {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .type-planta { background-color: #4CAF50; }
+        .type-veneno { background-color: #9C27B0; }
+        .type-fuego { background-color: #FF5722; }
+        .type-agua { background-color: #2196F3; }
+        .type-bicho { background-color: #8BC34A; }
+        .type-volador { background-color: #03A9F4; }
+        .type-normal { background-color: #9E9E9E; }
+        .search-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .pokemon-image img {
+            transition: transform 0.3s ease;
+        }
+        .pokemon-image img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-dragon me-2"></i>Pokédex
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Inicio</a>
+                <a class="nav-link" href="/about">Acerca de</a>
+                <a class="nav-link" href="/admin">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Container -->
+    <div class="search-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2 class="text-white text-center mb-4">¡Explora la Primera Generación de Pokémon!</h2>
+                    <form th:action="@{/buscar}" method="get" class="d-flex">
+                        <input type="text" name="nombre" class="form-control form-control-lg me-2" 
+                               placeholder="Buscar Pokémon por nombre..." required>
+                        <button type="submit" class="btn btn-light btn-lg">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Title and Stats -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="text-center mb-3" th:text="${titulo}">Pokédex - Primera Generación</h1>
+                <div class="text-center text-muted">
+                    <span th:if="${pokemons != null and !pokemons.empty}">
+                        Mostrando <span th:text="${pokemons.size()}">0</span> Pokémon
+                    </span>
+                    <span th:if="${busqueda != null}">
+                        Resultados para: "<span th:text="${busqueda}"></span>"
+                    </span>
+                    <span th:if="${tipo != null}">
+                        Tipo: <span th:text="${tipo}"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pokemon Grid -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" th:if="${pokemons != null and !pokemons.empty}">
+            <div class="col" th:each="pokemon : ${pokemons}">
+                <div class="card pokemon-card h-100" th:onclick="'window.location.href=\'/pokemon/' + ${pokemon.numero} + '\''">
+                    <div class="card-body text-center">
+                        <div class="pokemon-number mx-auto mb-3" th:text="${pokemon.numero}">#001</div>
+                        <div class="pokemon-image mb-3">
+                            <img th:src="${pokemon.imagenUrl}" th:alt="${pokemon.nombre}" 
+                                 class="img-fluid" style="width: 120px; height: 120px; object-fit: contain;">
+                        </div>
+                        <h5 class="card-title" th:text="${pokemon.nombre}">Pokemon</h5>
+                        
+                        <!-- Types -->
+                        <div class="mb-3">
+                            <span class="type-badge me-1" 
+                                  th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo1)}"
+                                  th:text="${pokemon.tipo1}">Tipo</span>
+                            <span class="type-badge" 
+                                  th:if="${pokemon.tipo2 != null and pokemon.tipo2 != ''}"
+                                  th:classappend="'type-' + ${#strings.toLowerCase(pokemon.tipo2)}"
+                                  th:text="${pokemon.tipo2}">Tipo2</span>
+                        </div>
+                        
+                        <!-- Stats Summary -->
+                        <div class="row text-muted small">
+                            <div class="col-6">
+                                <div>HP: <span th:text="${pokemon.hp}">45</span></div>
+                                <div>Ataque: <span th:text="${pokemon.ataque}">49</span></div>
+                            </div>
+                            <div class="col-6">
+                                <div>Defensa: <span th:text="${pokemon.defensa}">49</span></div>
+                                <div>Velocidad: <span th:text="${pokemon.velocidad}">45</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Total: <span th:text="${pokemon.totalStats}">318</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="text-center py-5" th:if="${pokemons == null or pokemons.empty}">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">No se encontraron Pokémon</h3>
+            <p class="text-muted">Intenta con otro nombre o vuelve al inicio</p>
+            <a href="/" class="btn btn-primary">Volver al Inicio</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Pokédex - Primera Generación. Desarrollado con Spring Boot</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
