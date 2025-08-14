@@ -97,54 +97,71 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <h2 class="text-white text-center mb-4">¡Explora Pokémon de las Generaciones 1 a 3!</h2>
-                    <form th:action="@{/buscar}" method="get" class="d-flex align-items-center flex-wrap gap-2">
-                        <input type="text" name="nombre" class="form-control form-control-lg me-2" 
-                               placeholder="Buscar Pokémon por nombre...">
-                        <select name="tipo" class="form-select form-select-lg me-2" style="max-width: 220px;">
-                            <option value="" selected>Todos los tipos</option>
-                            <option>Normal</option>
-                            <option>Fuego</option>
-                            <option>Agua</option>
-                            <option>Planta</option>
-                            <option>Eléctrico</option>
-                            <option>Hielo</option>
-                            <option>Lucha</option>
-                            <option>Veneno</option>
-                            <option>Tierra</option>
-                            <option>Volador</option>
-                            <option>Psíquico</option>
-                            <option>Bicho</option>
-                            <option>Roca</option>
-                            <option>Fantasma</option>
-                            <option>Dragón</option>
-                            <option>Siniestro</option>
-                            <option>Acero</option>
-                            <option>Hada</option>
-                        </select>
-                        <div class="d-flex align-items-center ms-2 me-2 text-white">
-                            <span class="me-2">Generaciones:</span>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="gen" value="1" id="gen1"
-                                       th:checked="${gens != null and gens.contains(1)}">
-                                <label class="form-check-label" for="gen1">1</label>
+                    <div class="container" style="max-width: 1000px;">
+                        <form th:action="@{/buscar}" method="get" class="row g-2 align-items-end flex-wrap justify-content-center">
+                            <div class="col-12 col-md-5">
+                                <input type="text" name="nombre" class="form-control" placeholder="Buscar Pokémon por nombre...">
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="gen" value="2" id="gen2"
-                                       th:checked="${gens != null and gens.contains(2)}">
-                                <label class="form-check-label" for="gen2">2</label>
+                            <div class="col-6 col-md-3">
+                                <select name="tipo" class="form-select" style="min-width: 155px; max-width: 100%;">
+                                    <option value="" selected>Todos los tipos</option>
+                                    <option>Normal</option>
+                                    <option>Fuego</option>
+                                    <option>Agua</option>
+                                    <option>Planta</option>
+                                    <option>Eléctrico</option>
+                                    <option>Hielo</option>
+                                    <option>Lucha</option>
+                                    <option>Veneno</option>
+                                    <option>Tierra</option>
+                                    <option>Volador</option>
+                                    <option>Psíquico</option>
+                                    <option>Bicho</option>
+                                    <option>Roca</option>
+                                    <option>Fantasma</option>
+                                    <option>Dragón</option>
+                                    <option>Siniestro</option>
+                                    <option>Acero</option>
+                                    <option>Hada</option>
+                                </select>
                             </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="gen" value="3" id="gen3"
-                                       th:checked="${gens != null and gens.contains(3)}">
-                                <label class="form-check-label" for="gen3">3</label>
+                            <div class="col-3 col-md-2 d-flex justify-content-end">
+                                <select name="size" class="form-select text-center" style="min-width: 10px; max-width: 70px;" title="Pokémon por página">
+                                    <option th:value="8" th:selected="${page != null and page.size == 8}">8</option>
+                                    <option th:value="12" th:selected="${page != null and page.size == 12}">12</option>
+                                    <option th:value="24" th:selected="${page == null or page.size == 24}">24</option>
+                                    <option th:value="48" th:selected="${page != null and page.size == 48}">48</option>
+                                    <option th:value="96" th:selected="${page != null and page.size == 96}">96</option>
+                                </select>
                             </div>
-                        </div>
-                        <input type="hidden" name="page" th:value="${page != null ? page.number : 0}">
-                        <input type="hidden" name="size" th:value="${page != null ? page.size : 24}">
-                        <button type="submit" class="btn btn-light btn-lg">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
+                            <div class="col-2 col-md-1 d-flex align-items-center justify-content-center" style="padding-left: 0.5rem;">
+                                <button type="submit" class="btn btn-light w-100" style="height: 100%; min-width: 48px;">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" name="page" th:value="${page != null ? page.number : 0}">
+                            <div class="col-12 mt-2">
+                                <div class="d-flex align-items-center text-white flex-wrap" style="gap: 0.5rem;">
+                                    <span>Generaciones:</span>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="gen" value="1" id="gen1"
+                                               th:checked="${gens != null and gens.contains(1)}">
+                                        <label class="form-check-label" for="gen1">1</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="gen" value="2" id="gen2"
+                                               th:checked="${gens != null and gens.contains(2)}">
+                                        <label class="form-check-label" for="gen2">2</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="gen" value="3" id="gen3"
+                                               th:checked="${gens != null and gens.contains(3)}">
+                                        <label class="form-check-label" for="gen3">3</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

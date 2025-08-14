@@ -104,6 +104,53 @@
         .pokemon-image img:hover {
             transform: scale(1.05);
         }
+        .stat-icon {
+            width: 22px;
+            height: 22px;
+            margin-right: 8px;
+            vertical-align: middle;
+            opacity: 0.85;
+        }
+        .stats-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .stats-bar {
+            height: 32px;
+            border-radius: 18px;
+            background: #e9ecef;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        .stats-fill {
+            height: 100%;
+            border-radius: 18px;
+            transition: width 1s cubic-bezier(.4,2,.6,1);
+            background: linear-gradient(90deg, var(--stat-color1), var(--stat-color2));
+            min-width: 8%;
+        }
+        .stat-hp   { --stat-color1: #43ea7f; --stat-color2: #2ecc71; }
+        .stat-atk  { --stat-color1: #ff7675; --stat-color2: #e17055; }
+        .stat-def  { --stat-color1: #74b9ff; --stat-color2: #0984e3; }
+        .stat-spa  { --stat-color1: #a29bfe; --stat-color2: #6c5ce7; }
+        .stat-spd  { --stat-color1: #ffeaa7; --stat-color2: #fdcb6e; }
+        .stat-spe  { --stat-color1: #fd79a8; --stat-color2: #e17055; }
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #222;
+            text-shadow: 0 1px 2px #fff8;
+        }
+        .stat-max {
+            font-size: 1rem;
+            color: #888;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -177,65 +224,65 @@
                         <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estadísticas Base</h4>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">HP</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.hp * 100 / 255} + '%'"></div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2764.svg" class="stat-icon"/>HP</div>
+                                <div class="stats-bar stat-hp mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.hp * 100 / 255} + '%'"> </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.hp}">45</span>
-                                    <span class="text-muted">/ 255</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">Ataque</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataque * 100 / 255} + '%'"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.ataque}">49</span>
-                                    <span class="text-muted">/ 255</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.hp}">45</span>
+                                    <span class="stat-max">/ 255</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">Defensa</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensa * 100 / 255} + '%'"></div>
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2694.svg" class="stat-icon"/>Ataque</div>
+                                <div class="stats-bar stat-atk mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataque * 100 / 255} + '%'"> </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.defensa}">49</span>
-                                    <span class="text-muted">/ 255</span>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">Ataque Especial</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataqueEspecial * 100 / 255} + '%'"></div>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.ataqueEspecial}">65</span>
-                                    <span class="text-muted">/ 255</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.ataque}">49</span>
+                                    <span class="stat-max">/ 255</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">Defensa Especial</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensaEspecial * 100 / 255} + '%'"></div>
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f6e1.svg" class="stat-icon"/>Defensa</div>
+                                <div class="stats-bar stat-def mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensa * 100 / 255} + '%'"> </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.defensaEspecial}">65</span>
-                                    <span class="text-muted">/ 255</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.defensa}">49</span>
+                                    <span class="stat-max">/ 255</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="stats-label">Velocidad</div>
-                                <div class="stats-bar mb-2">
-                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.velocidad * 100 / 255} + '%'"></div>
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/2728.svg" class="stat-icon"/>Ataque Especial</div>
+                                <div class="stats-bar stat-spa mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.ataqueEspecial * 100 / 255} + '%'"> </div>
                                 </div>
-                                <div class="d-flex justify-content-between">
-                                    <span th:text="${pokemon.velocidad}">45</span>
-                                    <span class="text-muted">/ 255</span>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.ataqueEspecial}">65</span>
+                                    <span class="stat-max">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f9ea.svg" class="stat-icon"/>Defensa Especial</div>
+                                <div class="stats-bar stat-spd mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.defensaEspecial * 100 / 255} + '%'"> </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.defensaEspecial}">65</span>
+                                    <span class="stat-max">/ 255</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stats-label"><img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f3c3.svg" class="stat-icon"/>Velocidad</div>
+                                <div class="stats-bar stat-spe mb-2">
+                                    <div class="stats-fill" th:style="'width: ' + ${pokemon.velocidad * 100 / 255} + '%'"> </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="stat-value" th:text="${pokemon.velocidad}">45</span>
+                                    <span class="stat-max">/ 255</span>
                                 </div>
                             </div>
                         </div>

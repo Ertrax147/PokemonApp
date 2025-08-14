@@ -234,24 +234,10 @@
 		function initSuggest(inputId, menuId){
 			const inp = document.getElementById(inputId);
 			const menu = document.getElementById(menuId);
-			function filter(){
-				const q = inp.value.trim().toLowerCase();
-				let any=false;
-				menu.querySelectorAll('.suggest-item').forEach(it=>{
-					const text = (it.dataset.text||'').toLowerCase();
-					const val = (it.dataset.value||'').toString();
-					const match = !q || text.includes(q) || val.includes(q);
-					it.style.display = match ? '' : 'none';
-					if(match) any=true;
-				});
-				menu.style.display = any ? 'block' : 'none';
-			}
-			// Bloquear teclado y pegado
-			inp.addEventListener('keydown', e=>{ if(e.key !== 'Tab') e.preventDefault(); });
-			inp.addEventListener('paste', e=> e.preventDefault());
-			inp.addEventListener('input', e=> e.preventDefault());
-			inp.addEventListener('focus', filter);
-			inp.addEventListener('click', ()=>{ menu.style.display = (menu.style.display==='block') ? 'none' : 'block'; if(menu.style.display==='block') filter(); });
+			// Mostrar siempre el menú al enfocar o hacer clic
+			inp.addEventListener('focus', ()=> { menu.style.display = 'block'; });
+			inp.addEventListener('click', ()=> { menu.style.display = 'block'; });
+			// Ocultar al perder el foco (con retardo para permitir click en item)
 			inp.addEventListener('blur', ()=> setTimeout(()=> menu.style.display='none', 150));
 			menu.addEventListener('mousedown', e=>{ e.preventDefault(); });
 			menu.addEventListener('click', e=>{
